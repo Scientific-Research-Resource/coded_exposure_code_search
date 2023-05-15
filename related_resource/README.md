@@ -3,7 +3,7 @@
 
 
 - Raskar et al.
-  - [code](./SearchBestSeq_raskar.m)
+  - [code](./SearchBestSeq_raskar)
   - theory: maximizing the minimal value of the spectrum’s magnitude and minimizing the variance of the spectrum values.
   - Raskar, Ramesh, Amit Agrawal, and Jack Tumblin. “Coded Exposure Photography: Motion Deblurring Using Fluttered Shutter.” *ACM Transactions on Graphics*, EI, 25, no. 3 (July 2006): 795–804. https://doi.org/10.1145/1141911.1141957.
 - Cui et al

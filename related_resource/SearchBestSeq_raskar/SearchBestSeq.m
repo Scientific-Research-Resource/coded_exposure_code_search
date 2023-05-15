@@ -10,16 +10,33 @@
 % MERL SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND MERL HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS OR MODIFICATIONS.
 
 
-% n = code length
-% k = number of ones in the code
-% objectwidth = zero padding for the code. 
-% !! zzh: the param 'objectwidth` should be given a relative
-% large number, like n*8, or the result will be incorrect
 
-function [bNoPad,sminimum] = SearchBestSeq(n,k,objectwidth)
+function [bNoPad,sminimum] = SearchBestSeq(n,k,objectwidth, max_exhuasive_search_times, max_random_search_times)
+% Params:
+%	n = code length
+%	k = number of ones in the code
+%	objectwidth = zero padding for the code. 
+%	max_exhuasive_search_times: maximum exhuasive search times
+%	max_random_search_times: maximum random search times
+% Return:
+%	bNoPad: searched code
+%	sminimum: spectral minimum
+% 
+% zzh note: 
+%	1. the param 'objectwidth` should be given a relative % large number, like n*8, or the result might  be incorrect
+%	2. if the total number of possible solutions < max_exhuasive_search_times, use
+%	exhausive searching by matlab; otherwise, use random searching by
+%	calling 'SearchBestSeqRandom.exe' (maximum random searching times =
+%	max_random_search_times)
 
+if nargin<5
+	max_random_search_times = 5*10^6;
+end
+if nargin<4
+	max_exhuasive_search_times = 5*10^5; % the param 'objectwidth` should be given a relative large number
+end
 if nargin<3
-	objectwidth = 8*n; % the param 'objectwidth` should be given a relative large number
+	objectwidth = min(16*n, 2^20); % the param 'objectwidth` should be given a relative large number
 end
 
 OPTIMIZE_F = 0;
@@ -34,14 +51,14 @@ end
 
 tt = nchoosek(n-2,k-2);
 
-disp(sprintf('Total permutations = %d',tt));
+fprintf('Total permutations = %d\n',tt);
 
 
 tic
 
-if(tt < 500000)
+if(tt < max_exhuasive_search_times)
 
-    disp(sprintf('Doing Permutation. Total number = %d',tt));
+    fprintf('Doing Permutation. Total number = %d\n',tt);
 
     idx = [2:n-1]';
     % find all permutations
@@ -92,7 +109,7 @@ if(tt < 500000)
             if(fminimum < sminimum)   %min FFT, we got an improvement in mask
                 sminimum = fminimum ;
                 bNoPadSaved = bNoPad;
-                disp(sprintf('n=%d, k=%d, minFofAprimeA=%f, seq=%s',n,k,sminimum,char(bNoPad+48)))
+                fprintf('n=%d, k=%d, minFofAprimeA=%f, seq=%s\n',n,k,sminimum,char(bNoPad+48))
             end
 
         else
@@ -103,7 +120,7 @@ if(tt < 500000)
             if(sminimum < fminimum)   %min FFT, we got an improvement in mask
                 sminimum = fminimum ;
                 bNoPadSaved = bNoPad;
-                disp(sprintf('n=%d, k=%d, minFFT=%f, seq=%s',n,k,sminimum,char(bNoPad+48)))
+                fprintf('n=%d, k=%d, minFFT=%f, seq=%s\n',n,k,sminimum,char(bNoPad+48))
             end
         end
 
@@ -116,7 +133,7 @@ else
 
     %maximum numbers of search
     startnum = 1
-    endnum = 1000*1000
+    endnum = max_random_search_times
     jump = 1
 
     tic
